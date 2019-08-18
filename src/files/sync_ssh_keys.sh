@@ -1,11 +1,13 @@
 #!/bin/bash
 # shellcheck disable=SC2174
 
+# Check environment vars
+PUBLIC_KEY_BUCKET="${PUBLIC_KEY_BUCKET:-$1}"
+IS_BASTION="${IS_BASTION:-$2}"
+
 # Sync the keys to the local filesystem
 PUBLIC_KEY_DIR='public_ssh_keys'
 mkdir -m 700 -p "$PUBLIC_KEY_DIR"
-# $PUBLIC_KEY_BUCKET should be set in env or in the first arg passed to the script
-PUBLIC_KEY_BUCKET="${PUBLIC_KEY_BUCKET:-$1}"
 if [[ -n "$PUBLIC_KEY_BUCKET" ]]; then
   echo "$PUBLIC_KEY_BUCKET is set as the PUBLIC_KEY_BUCKET"
 else
@@ -18,9 +20,13 @@ for FILENAME in "$PUBLIC_KEY_DIR"/*.pub; do
   [[ -e "$FILENAME" ]] || { echo "No public keys found" && exit 1; }  # handle the case of no *.pub files
 
   # Create a user for each key
-  # TODO Disallow --shell /usr/local/bin/disallow_shell.sh on bastion
   USERNAME=$(echo "$FILENAME" | awk -F"$PUBLIC_KEY_DIR/" '{print $2}' | awk -F'.pub' '{print $1}')
-  adduser "$USERNAME" || true
+  if [ "$IS_BASTION" == "true" ]; then
+    # Prevent users from logging into shell on bastion servers
+    adduser --shell /usr/local/bin/disallow_shell.sh "$USERNAME" || true
+  else
+    adduser "$USERNAME" || true
+  fi
 
   # Add public ssh key to authorized keys
   SSH_DIR="/home/$USERNAME/.ssh"

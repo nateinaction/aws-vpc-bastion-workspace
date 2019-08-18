@@ -1,8 +1,8 @@
 // Policies
-resource "aws_iam_policy" "bastion_read_users_bucket" {
-  name        = "bastion_read_users_bucket"
+resource "aws_iam_policy" "read_bastion_buckets" {
+  name        = "read_bastion_buckets"
   path        = "/"
-  description = "The ability to read user public ssh keys from S3"
+  description = "The ability to read user public ssh keys and scripts from S3"
 
   policy = <<POLICY
 {
@@ -27,8 +27,8 @@ POLICY
 }
 
 // Roles
-resource "aws_iam_role" "bastion" {
-  name = "bastion"
+resource "aws_iam_role" "read_bastion_buckets" {
+  name = "read_bastion_buckets"
 
   assume_role_policy = <<POLICY
 {
@@ -51,12 +51,12 @@ POLICY
   }
 }
 
-resource "aws_iam_role_policy_attachment" "bastion_read_users_bucket" {
-  role       = aws_iam_role.bastion.name
-  policy_arn = aws_iam_policy.bastion_read_users_bucket.arn
+resource "aws_iam_role_policy_attachment" "read_bastion_buckets" {
+  role       = aws_iam_role.read_bastion_buckets.name
+  policy_arn = aws_iam_policy.read_bastion_buckets.arn
 }
 
-resource "aws_iam_instance_profile" "bastion" {
-  name = "bastion"
-  role = aws_iam_role.bastion.name
+resource "aws_iam_instance_profile" "read_bastion_buckets" {
+  name = "read_bastion_buckets"
+  role = aws_iam_role.read_bastion_buckets.name
 }

@@ -24,6 +24,30 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
+data "template_file" "bastion_userdata" {
+  template = file("${path.module}/files/userdata.template.sh")
+  vars = {
+    is_bastion = "true"
+    bastion_users_bucket = var.bastion_users_bucket
+    bastion_scripts_bucket = var.bastion_scripts_bucket
+    disallow_shell_script_filename = aws_s3_bucket_object.disallow_shell_script.key
+    sync_ssh_keys_script_filename = aws_s3_bucket_object.sync_ssh_keys_script.key
+    bastion_cron_filename = aws_s3_bucket_object.bastion_cron.key
+  }
+}
+
+data "template_file" "bastion_protected_userdata" {
+  template = file("${path.module}/files/userdata.template.sh")
+  vars = {
+    is_bastion = "false"
+    bastion_users_bucket = var.bastion_users_bucket
+    bastion_scripts_bucket = var.bastion_scripts_bucket
+    disallow_shell_script_filename = aws_s3_bucket_object.disallow_shell_script.key
+    sync_ssh_keys_script_filename = aws_s3_bucket_object.sync_ssh_keys_script.key
+    bastion_cron_filename = aws_s3_bucket_object.bastion_cron.key
+  }
+}
+
 resource "aws_instance" "bastion_server" {
   count = 0
 
@@ -31,7 +55,7 @@ resource "aws_instance" "bastion_server" {
   instance_type = "t2.micro"
   #key_name      = var.ssh_key
 
-  iam_instance_profile = aws_iam_instance_profile.bastion.name
+  iam_instance_profile = aws_iam_instance_profile.read_bastion_buckets.name
   vpc_security_group_ids = [
     aws_vpc.network.default_security_group_id,
     aws_security_group.bastion.id,
@@ -40,28 +64,7 @@ resource "aws_instance" "bastion_server" {
   subnet_id                   = aws_subnet.public[count.index].id
   associate_public_ip_address = true
 
-  user_data = <<USERDATA
-#!/bin/bash
-set -x
-exec > >(tee /var/log/user-data.log|logger -t user-data ) 2>&1
-
-# Add vars to local env
-echo "PUBLIC_KEY_BUCKET=${var.bastion_users_bucket}" >> /etc/environment
-
-# Sync scripts to local filesystem
-BIN_DIR='/usr/local/bin'
-SCRIPTS_DIR='scripts'
-aws s3 sync "s3://${var.bastion_scripts_bucket}" "$SCRIPTS_DIR"
-rsync "$SCRIPTS_DIR/${aws_s3_bucket_object.disallow_shell_script.key}" "$BIN_DIR/"
-rsync "$SCRIPTS_DIR/${aws_s3_bucket_object.sync_ssh_keys_script.key}" "$BIN_DIR/"
-rsync "$SCRIPTS_DIR/${aws_s3_bucket_object.bastion_cron.key}" /etc/cron.d/
-
-# Ensure correct perms
-chmod +x "$BIN_DIR/${aws_s3_bucket_object.disallow_shell_script.key}"
-chmod +x "$BIN_DIR/${aws_s3_bucket_object.sync_ssh_keys_script.key}"
-
-/usr/local/bin/${aws_s3_bucket_object.sync_ssh_keys_script.key} "${var.bastion_users_bucket}"
-USERDATA
+  user_data = data.template_file.bastion_userdata.rendered
 
   tags = {
     Name = var.project_name
@@ -75,36 +78,14 @@ resource "aws_instance" "execution_server" {
   instance_type = "t2.micro"
   #key_name      = var.ssh_key
 
-  iam_instance_profile   = aws_iam_instance_profile.bastion.name
+  iam_instance_profile   = aws_iam_instance_profile.read_bastion_buckets.name
   vpc_security_group_ids = [
     aws_vpc.network.default_security_group_id,
   ]
 
   subnet_id = aws_subnet.private[count.index].id
 
-  # TODO Don't duplicate userdata between ec2 instances
-  user_data = <<USERDATA
-#!/bin/bash
-set -x
-exec > >(tee /var/log/user-data.log|logger -t user-data ) 2>&1
-
-# Add vars to local env
-echo "PUBLIC_KEY_BUCKET=${var.bastion_users_bucket}" >> /etc/environment
-
-# Sync scripts to local filesystem
-BIN_DIR='/usr/local/bin'
-SCRIPTS_DIR='scripts'
-aws s3 sync "s3://${var.bastion_scripts_bucket}" "$SCRIPTS_DIR"
-rsync "$SCRIPTS_DIR/${aws_s3_bucket_object.disallow_shell_script.key}" "$BIN_DIR/"
-rsync "$SCRIPTS_DIR/${aws_s3_bucket_object.sync_ssh_keys_script.key}" "$BIN_DIR/"
-rsync "$SCRIPTS_DIR/${aws_s3_bucket_object.bastion_cron.key}" /etc/cron.d/
-
-# Ensure correct perms
-chmod +x "$BIN_DIR/${aws_s3_bucket_object.disallow_shell_script.key}"
-chmod +x "$BIN_DIR/${aws_s3_bucket_object.sync_ssh_keys_script.key}"
-
-/usr/local/bin/${aws_s3_bucket_object.sync_ssh_keys_script.key} "${var.bastion_users_bucket}"
-USERDATA
+  user_data = data.template_file.bastion_protected_userdata.rendered
 
   tags = {
     Name = var.project_name
