@@ -2,7 +2,7 @@
 resource "aws_security_group" "bastion" {
   name        = "bastion"
   description = "Security group for the internet to talk to the bastion servers"
-  vpc_id      = aws_vpc.worldpeace_network.id
+  vpc_id      = aws_vpc.network.id
 
   ingress {
     from_port = "22"

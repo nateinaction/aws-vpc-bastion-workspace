@@ -33,7 +33,7 @@ resource "aws_instance" "bastion_server" {
 
   iam_instance_profile = aws_iam_instance_profile.bastion.name
   vpc_security_group_ids = [
-    aws_vpc.worldpeace_network.default_security_group_id,
+    aws_vpc.network.default_security_group_id,
     aws_security_group.bastion.id,
   ]
 
@@ -77,7 +77,7 @@ resource "aws_instance" "execution_server" {
 
   iam_instance_profile   = aws_iam_instance_profile.bastion.name
   vpc_security_group_ids = [
-    aws_vpc.worldpeace_network.default_security_group_id,
+    aws_vpc.network.default_security_group_id,
   ]
 
   subnet_id = aws_subnet.private[count.index].id

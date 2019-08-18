@@ -1,8 +1,8 @@
 resource "aws_vpc_endpoint" "bastion_s3" {
-  vpc_id = aws_vpc.worldpeace_network.id
+  vpc_id = aws_vpc.network.id
   service_name = "com.amazonaws.${var.aws_region}.s3"
   vpc_endpoint_type = "Gateway"
-  route_table_ids = [aws_route_table.worldpeace_network.id]
+  route_table_ids = [aws_route_table.network.id]
   policy = <<POLICY
 {
   "Version": "2012-10-17",
