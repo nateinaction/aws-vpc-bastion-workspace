@@ -1,6 +1,6 @@
 // Bastion Security Group
 resource "aws_security_group" "bastion" {
-  name        = "bastion-worldpeace-network"
+  name        = "bastion"
   description = "Security group for the internet to talk to the bastion servers"
   vpc_id      = aws_vpc.worldpeace_network.id
 
@@ -14,33 +14,7 @@ resource "aws_security_group" "bastion" {
     ]
   }
 
-  egress {
-    from_port = "22"
-    to_port   = "22"
-    protocol  = "tcp"
-
-    cidr_blocks = aws_subnet.private[*].cidr_block
-  }
-
-  tags = {
-    Name = "worldpeace-network"
-  }
-}
-
-// Bastion Protected Security Group
-resource "aws_security_group" "bastion_protected" {
-  name        = "bastion-protected-worldpeace-network"
-  description = "Security group for bastion servers to talk to items in the private subnets"
-  vpc_id      = aws_vpc.worldpeace_network.id
-
-  ingress {
-    from_port = "22"
-    to_port   = "22"
-    protocol  = "tcp"
-
-    cidr_blocks = aws_subnet.public[*].cidr_block
-  }
-
+  # TODO remove internet access from bastion
   egress {
     from_port = "0"
     to_port   = "0"
@@ -52,6 +26,6 @@ resource "aws_security_group" "bastion_protected" {
   }
 
   tags = {
-    Name = "worldpeace-network"
+    Name = var.project_name
   }
 }

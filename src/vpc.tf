@@ -5,7 +5,7 @@ resource "aws_vpc" "worldpeace_network" {
   assign_generated_ipv6_cidr_block = true
 
   tags = {
-    Name = "worldpeace-network"
+    Name = var.project_name
   }
 }
 
@@ -14,7 +14,7 @@ resource "aws_internet_gateway" "worldpeace_network" {
   vpc_id = aws_vpc.worldpeace_network.id
 
   tags = {
-    Name = "worldpeace-network"
+    Name = var.project_name
   }
 }
 
@@ -32,6 +32,6 @@ resource "aws_route_table" "worldpeace_network" {
   }
 
   tags = {
-    Name = "worldpeace-network"
+    Name = var.project_name
   }
 }

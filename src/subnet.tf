@@ -12,7 +12,7 @@ resource "aws_subnet" "public" {
   assign_ipv6_address_on_creation = true
 
   tags = {
-    Name = "worldpeace-network"
+    Name = var.project_name
   }
 }
 
@@ -33,7 +33,7 @@ resource "aws_subnet" "private" {
   assign_ipv6_address_on_creation = true
 
   tags = {
-    Name = "worldpeace-network"
+    Name = var.project_name
   }
 }
 
