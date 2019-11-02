@@ -11,3 +11,29 @@
 
 ### How to deploy
 - `make deploy`
+
+### How to ssh into execution
+
+SSH Config:
+```
+Host bastion
+    Hostname bastion.domain.com
+    User username
+    IdentityFile private_key
+Host *.domain.com
+    User username
+    ForwardAgent no
+    ProxyCommand ssh -q -W %h:%p bastion
+    IdentityFile private_key
+```
+
+SSH:
+```
+ssh workspace.domain.com
+
+       __|  __|_  )
+       _|  (     /   Amazon Linux 2 AMI
+      ___|\___|___|
+
+https://aws.amazon.com/amazon-linux-2/
+```
