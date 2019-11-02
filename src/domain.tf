@@ -6,7 +6,6 @@ resource "cloudflare_record" "bastion" {
   #name    = "bastion${count.index}"
   value   = aws_instance.bastion_server[count.index].public_ip
   type    = "A"
-  proxied = true
 }
 
 resource "cloudflare_record" "execution" {
