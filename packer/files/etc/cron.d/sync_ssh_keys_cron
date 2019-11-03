@@ -1,0 +1,1 @@
+*/5 * * * * root /bin/bash /usr/local/bin/sync_ssh_keys.sh

@@ -1,12 +1,16 @@
 WORKDIR := /workspace
-DOCKER_RUN := docker run --rm -it -v `pwd`/src:$(WORKDIR):delegated -w $(WORKDIR)
+DOCKER_RUN := docker run --rm -it -w $(WORKDIR)
 TERRAFORM_IMAGE := hashicorp/terraform:0.12.13
+PACKER_IMAGE := hashicorp/packer:light
 AWS_VAULT_ENV_VARS := -e AWS_VAULT -e AWS_DEFAULT_REGION -e AWS_REGION -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_SESSION_TOKEN -e AWS_SECURITY_TOKEN
-TERRAFORM_RUN := $(DOCKER_RUN) $(AWS_VAULT_ENV_VARS) $(TERRAFORM_IMAGE)
+TERRAFORM_RUN := $(DOCKER_RUN) -v `pwd`/src:$(WORKDIR):delegated $(AWS_VAULT_ENV_VARS) $(TERRAFORM_IMAGE)
+PACKER_RUN := $(DOCKER_RUN) -v `pwd`/packer:$(WORKDIR):delegated $(AWS_VAULT_ENV_VARS) $(PACKER_IMAGE)
 
 all: lint setup plan
 
-lint:
+lint: validate_packer_template lint_terraform
+
+lint_terraform:
 	$(TERRAFORM_RUN) fmt
 
 setup:
@@ -20,3 +24,9 @@ deploy:
 
 destroy:
 	aws-vault exec worldpeace -- $(TERRAFORM_RUN) destroy
+
+validate_packer_template:
+	$(PACKER_RUN) validate base_image.json
+
+build_ami:
+	aws-vault exec worldpeace -- $(PACKER_RUN) build base_image.json

@@ -9,6 +9,9 @@
 ### How to lint and test infrastructure changes
 - `make`
 
+### Build a new worldpeace-ubuntu image
+- `make build_ami`
+
 ### How to deploy
 - `make deploy`
 

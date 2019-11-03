@@ -22,24 +22,3 @@ resource "aws_route_table_association" "public" {
   subnet_id      = aws_subnet.public[count.index].id
   route_table_id = aws_route_table.network.id
 }
-
-resource "aws_subnet" "private" {
-  count = length(data.aws_availability_zones.available.names)
-
-  vpc_id                          = aws_vpc.network.id
-  availability_zone               = data.aws_availability_zones.available.names[count.index]
-  cidr_block                      = cidrsubnet(aws_vpc.network.cidr_block, 8, 100 + count.index)
-  ipv6_cidr_block                 = cidrsubnet(aws_vpc.network.ipv6_cidr_block, 8, 100 + count.index)
-  assign_ipv6_address_on_creation = true
-
-  tags = {
-    Name = var.project_name
-  }
-}
-
-resource "aws_route_table_association" "private" {
-  count = length(aws_subnet.private)
-
-  subnet_id      = aws_subnet.private[count.index].id
-  route_table_id = aws_route_table.network.id
-}

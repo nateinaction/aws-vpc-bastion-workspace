@@ -23,9 +23,9 @@ for FILENAME in "$PUBLIC_KEY_DIR"/*.pub; do
   USERNAME=$(echo "$FILENAME" | awk -F"$PUBLIC_KEY_DIR/" '{print $2}' | awk -F'.pub' '{print $1}')
   if [ "$IS_BASTION" == "true" ]; then
     # Prevent users from logging into shell on bastion servers
-    adduser --shell /usr/local/bin/disallow_shell.sh "$USERNAME" || true
+    adduser --disabled-password --gecos "" --shell /usr/local/bin/disallow_shell.sh "$USERNAME" || true
   else
-    adduser "$USERNAME" || true
+    adduser --disabled-password --gecos "" "$USERNAME" || true
   fi
 
   # Add public ssh key to authorized keys

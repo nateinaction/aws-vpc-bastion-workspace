@@ -1,3 +1,7 @@
+data "aws_s3_bucket" "bastion_users_bucket" {
+  bucket = var.bastion_users_bucket
+}
+
 // Policies
 resource "aws_iam_policy" "read_bastion_buckets" {
   name        = "read_bastion_buckets"
@@ -16,9 +20,7 @@ resource "aws_iam_policy" "read_bastion_buckets" {
       "Effect": "Allow",
       "Resource": [
         "${data.aws_s3_bucket.bastion_users_bucket.arn}",
-        "${data.aws_s3_bucket.bastion_users_bucket.arn}/*",
-        "${data.aws_s3_bucket.bastion_scripts_bucket.arn}",
-        "${data.aws_s3_bucket.bastion_scripts_bucket.arn}/*"
+        "${data.aws_s3_bucket.bastion_users_bucket.arn}/*"
       ]
     }
   ]
