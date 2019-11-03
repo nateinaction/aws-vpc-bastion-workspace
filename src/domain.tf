@@ -16,7 +16,6 @@ resource "cloudflare_record" "bastion_ipv6" {
   #name    = "bastion-${count.index}"
   value   = aws_instance.bastion_server[count.index].ipv6_addresses[0]
   type    = "AAAA"
-  proxied = true
 }
 
 resource "cloudflare_record" "execution_ipv4" {
@@ -37,5 +36,4 @@ resource "cloudflare_record" "execution_ipv6" {
   #name    = "workspace-${count.index}"
   value   = aws_instance.execution_server[count.index].ipv6_addresses[0]
   type    = "AAAA"
-  proxied = true
 }

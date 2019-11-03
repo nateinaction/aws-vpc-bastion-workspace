@@ -17,3 +17,6 @@ plan:
 
 deploy:
 	aws-vault exec worldpeace -- $(TERRAFORM_RUN) apply
+
+destroy:
+	aws-vault exec worldpeace -- $(TERRAFORM_RUN) destroy
