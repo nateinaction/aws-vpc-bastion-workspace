@@ -27,8 +27,6 @@ data "template_file" "bastion_protected_userdata" {
 resource "aws_instance" "bastion_server" {
   count = var.number_of_instances
 
-  key_name = "nate.gay"
-
   ami           = data.aws_ami.ubuntu.id
   instance_type = var.bastion_instance_type
   iam_instance_profile = aws_iam_instance_profile.read_bastion_buckets.name
@@ -53,8 +51,6 @@ resource "aws_instance" "bastion_server" {
 
 resource "aws_instance" "execution_server" {
   count = var.number_of_instances
-
-  key_name = "nate.gay"
 
   ami           = data.aws_ami.ubuntu.id
   instance_type = var.execution_instance_type
