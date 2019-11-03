@@ -63,6 +63,10 @@ resource "aws_instance" "bastion_server" {
   subnet_id                   = aws_subnet.public[count.index].id
   associate_public_ip_address = true
 
+  ebs_optimized = true
+  root_block_device {
+    encrypted = true
+  }
   user_data = data.template_file.bastion_userdata.rendered
 
   tags = {
@@ -83,6 +87,10 @@ resource "aws_instance" "execution_server" {
 
   subnet_id = aws_subnet.private[count.index].id
 
+  ebs_optimized = true
+  root_block_device {
+    encrypted = true
+  }
   user_data = data.template_file.bastion_protected_userdata.rendered
 
   tags = {
