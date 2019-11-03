@@ -4,8 +4,8 @@ resource "cloudflare_record" "bastion_ipv4" {
   zone_id = var.cloudflare_zone_id
   name    = "bastion"
   #name    = "bastion-${count.index}"
-  value   = aws_instance.bastion_server[count.index].public_ip
-  type    = "A"
+  value = aws_instance.bastion_server[count.index].public_ip
+  type  = "A"
 }
 
 resource "cloudflare_record" "bastion_ipv6" {
@@ -14,8 +14,8 @@ resource "cloudflare_record" "bastion_ipv6" {
   zone_id = var.cloudflare_zone_id
   name    = "bastion"
   #name    = "bastion-${count.index}"
-  value   = aws_instance.bastion_server[count.index].ipv6_addresses[0]
-  type    = "AAAA"
+  value = aws_instance.bastion_server[count.index].ipv6_addresses[0]
+  type  = "AAAA"
 }
 
 resource "cloudflare_record" "execution_ipv4" {
@@ -34,6 +34,6 @@ resource "cloudflare_record" "execution_ipv6" {
   zone_id = var.cloudflare_zone_id
   name    = "workspace"
   #name    = "workspace-${count.index}"
-  value   = aws_instance.execution_server[count.index].ipv6_addresses[0]
-  type    = "AAAA"
+  value = aws_instance.execution_server[count.index].ipv6_addresses[0]
+  type  = "AAAA"
 }
