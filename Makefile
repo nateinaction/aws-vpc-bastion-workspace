@@ -28,5 +28,10 @@ destroy:
 validate_packer_template:
 	$(PACKER_RUN) validate base_image.json
 
-build_ami:
+build_ami: build_ami_base build_ami_bastion
+
+build_ami_base:
 	aws-vault exec worldpeace -- $(PACKER_RUN) build base_image.json
+
+build_ami_bastion:
+	aws-vault exec worldpeace -- $(PACKER_RUN) build bastion_image.json

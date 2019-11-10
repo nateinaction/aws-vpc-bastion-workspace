@@ -4,22 +4,13 @@ data "aws_ami" "ubuntu" {
 
   filter {
     name   = "name"
-    values = ["worldpeace-aws-ubuntu-*"]
+    values = ["worldpeace-aws-ubuntu-18.04*"]
   }
 }
 
-data "template_file" "bastion_userdata" {
+data "template_file" "userdata" {
   template = file("${path.module}/files/userdata.template.sh")
   vars = {
-    is_bastion           = "true"
-    bastion_users_bucket = var.bastion_users_bucket
-  }
-}
-
-data "template_file" "bastion_protected_userdata" {
-  template = file("${path.module}/files/userdata.template.sh")
-  vars = {
-    is_bastion           = "false"
     bastion_users_bucket = var.bastion_users_bucket
   }
 }
@@ -42,7 +33,7 @@ resource "aws_instance" "bastion_server" {
   root_block_device {
     encrypted = true
   }
-  user_data = data.template_file.bastion_userdata.rendered
+  user_data = data.template_file.userdata.rendered
 
   tags = {
     Name = var.project_name
@@ -66,7 +57,7 @@ resource "aws_instance" "execution_server" {
   root_block_device {
     encrypted = true
   }
-  user_data = data.template_file.bastion_protected_userdata.rendered
+  user_data = data.template_file.userdata.rendered
 
   tags = {
     Name = var.project_name

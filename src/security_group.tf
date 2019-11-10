@@ -4,10 +4,22 @@ resource "aws_security_group" "bastion" {
   description = "Security group for the internet to talk to the bastion servers"
   vpc_id      = aws_vpc.network.id
 
+  # ssh
   ingress {
     from_port = "22"
     to_port   = "22"
     protocol  = "tcp"
+
+    cidr_blocks = [
+      "0.0.0.0/0",
+    ]
+  }
+
+  # mosh
+  ingress {
+    from_port = "60000"
+    to_port   = "61000"
+    protocol  = "udp"
 
     cidr_blocks = [
       "0.0.0.0/0",

@@ -1,14 +1,9 @@
 {
-  "variables": {
-    "aws_access_key": "{{env `AWS_ACCESS_KEY_ID`}}",
-    "aws_secret_key": "{{env `AWS_SECRET_ACCESS_KEY`}}"
-  },
   "builders": [
     {
       "region": "us-east-1",
       "type": "amazon-ebs",
-      "ami_name": "worldpeace-aws-ubuntu-{{timestamp}}",
-      "skip_region_validation": true,
+      "ami_name": "worldpeace-aws-ubuntu-18.04-{{timestamp}}",
       "instance_type": "t3.nano",
       "ssh_username": "ubuntu",
       "source_ami_filter": {
@@ -30,11 +25,6 @@
     },
     {
       "type": "file",
-      "source": "./files/usr/local/bin/disallow_shell.sh",
-      "destination": "/tmp/disallow_shell.sh"
-    },
-    {
-      "type": "file",
       "source": "./files/usr/local/bin/sync_ssh_keys.sh",
       "destination": "/tmp/sync_ssh_keys.sh"
     },
@@ -42,11 +32,10 @@
       "type": "shell",
       "inline":[
         "sudo mv /tmp/sync_ssh_keys_cron /etc/cron.d/",
-        "sudo mv /tmp/disallow_shell.sh /usr/local/bin/",
         "sudo mv /tmp/sync_ssh_keys.sh /usr/local/bin/",
         "sudo add-apt-repository \"deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) main universe restricted multiverse\"",
         "sudo apt-get update",
-        "sudo apt-get install -y awscli"
+        "sudo apt-get install -y awscli mosh"
       ]
     }
   ]
